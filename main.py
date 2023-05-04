@@ -11,6 +11,8 @@ from langchain.vectorstores import VectorStore
 from callback import QuestionGenCallbackHandler, StreamingLLMCallbackHandler
 from query_data import get_chain
 from schemas import ChatResponse
+import pdb
+
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -39,6 +41,11 @@ async def websocket_endpoint(websocket: WebSocket):
     stream_handler = StreamingLLMCallbackHandler(websocket)
     chat_history = []
     qa_chain = get_chain(vectorstore, question_handler, stream_handler)
+    # # TODO: remove
+    # question = "Tell me a joke"
+    # result = await qa_chain.acall({"question": question, "chat_history": chat_history})
+    # pdb.set_trace()
+
     # Use the below line instead of the above line to enable tracing
     # Ensure `langchain-server` is running
     # qa_chain = get_chain(vectorstore, question_handler, stream_handler, tracing=True)
@@ -47,6 +54,7 @@ async def websocket_endpoint(websocket: WebSocket):
         try:
             # Receive and send back the client message
             question = await websocket.receive_text()
+            print(f"--> User: {question}")
             resp = ChatResponse(sender="you", message=question, type="stream")
             await websocket.send_json(resp.dict())
 
@@ -54,9 +62,11 @@ async def websocket_endpoint(websocket: WebSocket):
             start_resp = ChatResponse(sender="bot", message="", type="start")
             await websocket.send_json(start_resp.dict())
 
+            print(f"--> Calling OpenAI...")
             result = await qa_chain.acall(
                 {"question": question, "chat_history": chat_history}
             )
+            print(f"--> Bot: {result}")
             chat_history.append((question, result["answer"]))
 
             end_resp = ChatResponse(sender="bot", message="", type="end")

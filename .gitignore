@@ -137,3 +137,11 @@ dmypy.json
 
 vectorstore.pkl
 langchain.readthedocs.io/
+
+
+# ty-branch
+.logs 
+.pkl
+.html
+*.txt
+.old_html
