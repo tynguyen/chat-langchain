@@ -52,3 +52,7 @@ Question-Answering has the following steps, all handled by [ChatVectorDBChain](h
 cd .html
 bash download_htmls.sh
 ```
+
+### Set Local Variables
+* Change `.env.example` to `.env`
+* Put values to variables in `.env`

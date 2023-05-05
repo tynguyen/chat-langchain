@@ -1,3 +1,8 @@
+# This must be on top to enable tracing
+import os
+
+os.environ["LANGCHAIN_HANDLER"] = "langchain"
+
 """Main entrypoint for the app."""
 import logging
 import pickle
@@ -12,6 +17,7 @@ from callback import QuestionGenCallbackHandler, StreamingLLMCallbackHandler
 from query_data import get_chain
 from schemas import ChatResponse
 import pdb
+import os
 
 
 app = FastAPI()
@@ -40,7 +46,7 @@ async def websocket_endpoint(websocket: WebSocket):
     question_handler = QuestionGenCallbackHandler(websocket)
     stream_handler = StreamingLLMCallbackHandler(websocket)
     chat_history = []
-    qa_chain = get_chain(vectorstore, question_handler, stream_handler)
+    qa_chain = get_chain(vectorstore, question_handler, stream_handler, tracing=True)
     # # TODO: remove
     # question = "Tell me a joke"
     # result = await qa_chain.acall({"question": question, "chat_history": chat_history})
@@ -86,5 +92,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
 if __name__ == "__main__":
     import uvicorn
+
+    os.environ["LANGCHAIN_TRACING"] = "true"
+    os.environ["LANGCHAIN_SESSION"] = "chat-langchain"
 
     uvicorn.run(app, host="0.0.0.0", port=9000)
