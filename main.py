@@ -1,6 +1,9 @@
 # This must be on top to enable tracing
 import os
 
+os.environ["LANGCHAIN_TRACING"] = "true"
+os.environ["LANGCHAIN_SESSION"] = "chat-langchain"
+
 os.environ["LANGCHAIN_HANDLER"] = "langchain"
 
 """Main entrypoint for the app."""
@@ -92,8 +95,5 @@ async def websocket_endpoint(websocket: WebSocket):
 
 if __name__ == "__main__":
     import uvicorn
-
-    os.environ["LANGCHAIN_TRACING"] = "true"
-    os.environ["LANGCHAIN_SESSION"] = "chat-langchain"
 
     uvicorn.run(app, host="0.0.0.0", port=9000)
